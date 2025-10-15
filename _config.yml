@@ -1,0 +1,10 @@
+# Exclude files and folders that should not be processed by Jekyll
+exclude:
+  - .DS_Store
+  - .gitignore
+  - node_modules
+  - package.json
+  - package-lock.json
+  - yarn.lock
+  - README.md
+  - artvibe-backend-js/
