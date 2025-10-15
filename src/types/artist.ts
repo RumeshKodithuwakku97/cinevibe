@@ -36,8 +36,10 @@ export interface RegisterData {
 export interface AuthContextType {
     authState: AuthState;
     login: (credentials: LoginCredentials) => Promise<void>;
-    register: (userData: RegisterData) => Promise<void>;
-    logout: () => void;
+    // CORRECTED: Expected to return User object on success or null on failure
+    register: (userData: RegisterData) => Promise<User | null>;
+    // CORRECTED: Is asynchronous, so returns Promise<void>
+    logout: () => Promise<void>;
     clearError: () => void;
 }
 

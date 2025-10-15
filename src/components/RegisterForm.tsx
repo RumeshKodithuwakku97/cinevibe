@@ -19,7 +19,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin, onClose })
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await register(formData);
+        // Await registration and check if a user object was returned (success)
+        const user = await register(formData);
+
+        if (user) {
+            // If registration is successful, switch to the login interface
+            onSwitchToLogin();
+        }
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

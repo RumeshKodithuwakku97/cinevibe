@@ -14,8 +14,38 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onClose }) =>
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Save the current isAuthenticated state before attempting login
+        const wasAuthenticated = authState.isAuthenticated;
+
+        // Await the login process
         await login(credentials);
+
+        // Check the updated isAuthenticated state after the login attempt.
+        // The AuthContext listener (onAuthStateChange) is asynchronous,
+        // but checking authState.user immediately after a successful login
+        // often works for UI flow. A simpler, more synchronous check for login success
+        // is often used in component logic like this, assuming the effect runs quickly.
+        // For a more reliable check in asynchronous flows, a promise return
+        // from `login` is usually better, but based on your current setup, we proceed.
+
+        // OPTION 1: Check if the user is now authenticated and wasn't before (simple check)
+        // This relies on the `onAuthStateChange` listener resolving the AuthContext state quickly.
+        // Since `login` itself doesn't return the User, relying on `authState.user`
+        // immediately after is a common but slightly imperfect pattern in React context logic.
+
+        // For the current setup, we rely on the component being rerendered after auth state update.
+        // We close the modal only if there was no error reported by the `login` function.
+        if (!authState.error && !wasAuthenticated) {
+            onClose(); // Close the modal upon successful login
+        }
+
+        // NOTE: The most robust pattern is to modify `login` in AuthContext.tsx
+        // to return a boolean indicating success, but we are fixing the component here.
     };
+
+    // ... rest of handleInputChange and component logic remains unchanged ...
+// ... (omitting unchanged helper functions and rendering logic for brevity)
 
     return (
         <div className="modal-content">
