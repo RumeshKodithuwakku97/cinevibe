@@ -32,6 +32,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             if (user) {
                 let profile;
                 try {
+                    // Try to fetch custom profile data
                     const { data: profileData, error: profileError } = await supabase.from('profiles').select('display_name, avatar_url, role').eq('id', user.id).single();
                     profile = profileData;
                     if (profileError && profileError.code !== 'PGRST116') {
@@ -41,6 +42,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     console.error('Error during profile fetch in onAuthStateChange:', e);
                 }
 
+                // Construct app user with fallback values
                 const appUser: User = {
                     id: user.id,
                     displayName: profile?.display_name || (user.user_metadata.display_name as string) || user.email?.split('@')[0] || 'New User',
@@ -62,7 +64,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         dispatch({ type: 'AUTH_START' });
         try {
             const { email, password, displayName, role } = userData;
-            // Supabase signup logic: Create the user and optionally include metadata
+            // 1. Supabase Auth Signup (Creates user in auth.users)
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
@@ -78,6 +80,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 throw new Error(error.message);
             }
 
+            // 2. Create corresponding user profile in the 'profiles' table
+            if (data.user) {
+                const { error: profileError } = await supabase
+                    .from('profiles')
+                    .insert([
+                        {
+                            id: data.user.id,
+                            display_name: displayName,
+                            role: role,
+                            email: email // Store email as well
+                            // Add all other non-nullable columns your profiles table expects
+                        }
+                    ]);
+
+                if (profileError) {
+                    // Log the error but continue, as the core user account is created.
+                    console.error('Error creating user profile in "profiles" table:', profileError);
+                }
+            }
+
+            // Return user object on success
             return data.user;
         } catch (error: any) {
             dispatch({ type: 'AUTH_FAILURE', payload: error.message });
@@ -88,16 +111,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const login = async (credentials: LoginCredentials) => {
         dispatch({ type: 'AUTH_START' });
         try {
-            // This is the core login call
             const { error } = await supabase.auth.signInWithPassword(credentials);
             if (error) {
-                // If supabase returns an error, throw it to be caught below
                 throw new Error(error.message);
             }
-            // If sign-in succeeds, the onAuthStateChange listener will automatically handle AUTH_SUCCESS
-            // by fetching the profile and updating the state.
+            // The onAuthStateChange listener handles the successful authentication flow
         } catch (error: any) {
-            // Handle the error by dispatching AUTH_FAILURE
             dispatch({ type: 'AUTH_FAILURE', payload: error.message });
         }
     };
