@@ -900,3 +900,54 @@ h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: 700; line-height
 }
 .skill-card h5 { font-size: 1.1rem; margin-bottom: 0.5rem; }
 .skill-card p { color: var(--text-secondary); text-transform: capitalize; }
+.home-content {
+    padding: 20px; /* Small padding for mobile screens */
+}
+
+.home-content h1 {
+    font-size: 1.8rem; /* Smaller font for phones */
+}
+
+.home-content p {
+    font-size: 1rem;
+}
+
+.form-container {
+    max-width: 95%; /* Ensure forms take up most of the screen width */
+}
+
+/* --- Breakpoint 1: Tablets and Small Laptops (Min Width: 768px) --- */
+@media (min-width: 768px) {
+
+    .home-content {
+        padding: 40px; /* Increase padding */
+    }
+
+    .home-content h1 {
+        font-size: 2.5rem; /* Standard desktop font size */
+    }
+
+    .home-content p {
+        font-size: 1.2rem;
+    }
+
+    /* Example: If you have a grid of cards, change them from one column to two */
+    .card-grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Two columns on tablets */
+        gap: 20px;
+    }
+
+    .form-container {
+        max-width: 450px; /* Limit the form width to a readable size */
+    }
+}
+
+/* --- Breakpoint 2: Large Desktops (Min Width: 1200px) --- */
+@media (min-width: 1200px) {
+
+    /* Example: Increase card grid to three columns on large monitors */
+    .card-grid-container {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
